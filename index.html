@@ -3,33 +3,214 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Входящие заявки</title>
+  <meta name="color-scheme" content="light">
+  <title>Входящие заявки · Neowise</title>
   <style>
-    body { max-width: 40rem; margin: 2rem auto; padding: 0 1rem; font: 1rem/1.5 system-ui, sans-serif; }
-    textarea { box-sizing: border-box; display: block; width: 100%; margin: .5rem 0; padding: .5rem; font: inherit; }
-    button { padding: .4rem .8rem; font: inherit; }
-    pre { white-space: pre-wrap; }
+    :root { font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #263632; background: #f5f6f3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    [hidden] { display: none !important; }
+    .shell { width: min(100% - 48px, 1040px); margin-inline: auto; }
+    .topbar { border-bottom: 1px solid #dfe4de; background: #fff; }
+    .topbar .shell { display: flex; align-items: center; gap: 20px; min-height: 72px; }
+    .brand { font-size: 21px; font-weight: 750; letter-spacing: -.8px; }
+    .brand-mark { display: inline-block; width: 10px; height: 10px; margin-right: 9px; background: #28745c; border-radius: 2px; }
+    .section-name { border-left: 1px solid #dfe4de; padding-left: 20px; color: #68746e; font-size: 14px; }
+    main { padding-block: 48px 32px; }
+    h1 { margin: 0 0 9px; font-size: clamp(26px, 4vw, 32px); font-weight: 650; line-height: 1.2; letter-spacing: -.9px; }
+    .intro { margin: 0; color: #68746e; max-width: 650px; }
+    .workspace { display: grid; grid-template-columns: 1fr 1fr; margin-top: 30px; border: 1px solid #d9e0d9; border-radius: 8px; overflow: hidden; background: #fff; }
+    .panel { min-width: 0; padding: 27px; }
+    .result-panel { border-left: 1px solid #dfe4de; background: #fcfdfa; }
+    .panel-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    h2 { margin: 0; font-size: 16px; font-weight: 650; }
+    .step { margin-right: 8px; color: #859189; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .small { font-size: 12px; color: #68746e; }
+    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+    textarea { display: block; width: 100%; min-height: 218px; padding: 14px; border: 1px solid #bdc9bf; border-radius: 5px; resize: vertical; color: #263632; background: #fff; }
+    textarea::placeholder { color: #89938b; }
+    textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid #a4cfbb; outline-offset: 3px; }
+    textarea[aria-invalid="true"] { border-color: #aa6640; }
+    .hint { margin: 10px 0 20px; color: #68746e; font-size: 12px; }
+    .primary { display: inline-flex; align-items: center; gap: 12px; padding: 10px 16px; border: 1px solid #25654f; border-radius: 5px; background: #286e56; color: #fff; font-weight: 600; font-size: 14px; }
+    .primary:hover { background: #205b47; }
+    button:disabled { cursor: wait; opacity: .65; }
+    .empty { display: flex; min-height: 286px; flex-direction: column; justify-content: center; align-items: flex-start; }
+    .empty-symbol { display: grid; place-items: center; width: 36px; height: 40px; margin-bottom: 16px; border: 1px solid #c6d2c8; border-radius: 4px; color: #829b89; font-size: 20px; }
+    .empty p { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+    .empty span { max-width: 300px; font-size: 14px; color: #68746e; }
+    .notice { margin: 0 0 18px; padding: 13px 15px; border-left: 3px solid #b28243; background: #faf2e5; color: #70512e; font-size: 14px; }
+    .topic { display: inline-block; margin: 0 0 20px; padding: 3px 10px; border: 1px solid #c8ddcf; border-radius: 4px; color: #285c43; background: #edf5ef; font-size: 13px; font-weight: 600; }
+    .draft-label { margin: 0 0 8px; font-size: 12px; color: #68746e; }
+    .draft { margin: 0 0 20px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; line-height: 1.7; }
+    .review-note { margin: 0; padding-top: 16px; border-top: 1px solid #dfe4de; color: #68746e; font-size: 12px; }
+    .footer { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; margin-top: 18px; color: #68746e; font-size: 12px; }
+    .footer p { margin: 0; }
+    details { max-width: 560px; }
+    summary { cursor: pointer; }
+    details p { margin-top: 8px !important; }
+    code { font: 12px/1.7 ui-monospace, Consolas, monospace; color: #415f4c; }
+    @media (max-width: 700px) {
+      .shell { width: calc(100% - 32px); }
+      .topbar .shell { min-height: 62px; }
+      main { padding-top: 30px; }
+      .workspace { grid-template-columns: 1fr; margin-top: 24px; }
+      .panel { padding: 22px; }
+      .result-panel { border-left: 0; border-top: 1px solid #dfe4de; }
+      .empty { min-height: 170px; }
+      textarea { min-height: 180px; }
+    }
   </style>
 </head>
 <body>
-  <h1>Входящие заявки</h1>
-  <form>
-    <label for="message">Текст заявки</label>
-    <textarea id="message" rows="4"></textarea>
-    <button type="submit">Разобрать заявку</button>
-  </form>
-  <pre id="result" aria-live="polite"></pre>
+  <header class="topbar">
+    <div class="shell">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span>neowise</div>
+      <span class="section-name">Работа с обращениями</span>
+    </div>
+  </header>
+  <main class="shell">
+    <h1>Входящие заявки</h1>
+    <p class="intro">Вставьте обращение клиента. Помощник определит тему и предложит ответ для проверки.</p>
+    <div class="workspace">
+      <section class="panel" aria-labelledby="input-heading">
+        <div class="panel-heading">
+          <h2 id="input-heading"><span class="step" aria-hidden="true">01</span>Обращение клиента</h2>
+        </div>
+        <form novalidate>
+          <label for="message">Текст заявки</label>
+          <textarea id="message" name="text" required placeholder="Например: Здравствуйте! Сколько стоит доставка заказа в Казань?" aria-describedby="input-hint"></textarea>
+          <p class="hint" id="input-hint">Для проверки используйте учебные данные.</p>
+          <button class="primary" type="submit"><span id="button-label">Разобрать заявку</span><span aria-hidden="true">→</span></button>
+        </form>
+      </section>
+      <section class="panel result-panel" aria-labelledby="result-heading" aria-busy="false">
+        <div class="panel-heading">
+          <h2 id="result-heading"><span class="step" aria-hidden="true">02</span>Результат разбора</h2>
+          <span class="small">Проверяет менеджер</span>
+        </div>
+        <div id="result" aria-live="polite" aria-atomic="true">
+          <div class="empty" id="empty-state">
+            <div class="empty-symbol" aria-hidden="true">≡</div>
+            <p>Здесь появится черновик</p>
+            <span>Добавьте текст заявки слева и запустите разбор.</span>
+          </div>
+          <p class="notice" id="notice" hidden></p>
+          <div id="answer" hidden>
+            <p class="topic" id="topic"></p>
+            <p class="draft-label">Черновик ответа</p>
+            <p class="draft" id="draft"></p>
+            <p class="review-note">Проверьте детали и отредактируйте ответ перед отправкой клиенту.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <footer class="footer">
+      <p>Учебный стенд · Ответы формирует имитатор AI</p>
+      <details>
+        <summary>Как проверить сбои</summary>
+        <p>Добавьте в заявку одну из меток: <code>[timeout]</code>, <code>[error]</code>, <code>[bad-json]</code>, <code>[bad-topic]</code>, <code>[empty-draft]</code>. Заявка останется для ручного разбора.</p>
+      </details>
+    </footer>
+  </main>
   <script type="module">
     const form = document.querySelector("form");
-    const result = document.querySelector("#result");
+    const message = document.querySelector("#message");
+    const button = document.querySelector("button[type=submit]");
+    const buttonLabel = document.querySelector("#button-label");
+    const panel = document.querySelector(".result-panel");
+    const empty = document.querySelector("#empty-state");
+    const notice = document.querySelector("#notice");
+    const answer = document.querySelector("#answer");
+    const topic = document.querySelector("#topic");
+    const draft = document.querySelector("#draft");
+    const topicLabels = { delivery: "Доставка", pricing: "Цены и стоимость", other: "Другое" };
+    let busy = false;
+    let revision = 0;
+
+    function clearResult() {
+      answer.hidden = true;
+      topic.textContent = "";
+      draft.textContent = "";
+      notice.textContent = "";
+      notice.hidden = true;
+    }
+
+    function showNotice(text) {
+      clearResult();
+      empty.hidden = true;
+      notice.textContent = text;
+      notice.hidden = false;
+    }
+
+    message.addEventListener("input", () => {
+      revision += 1;
+      message.removeAttribute("aria-invalid");
+      clearResult();
+      empty.hidden = false;
+    });
+
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const reply = await fetch("/api/triage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: document.querySelector("#message").value }),
-      });
-      result.textContent = JSON.stringify(await reply.json(), null, 2);
+      if (busy) return;
+      clearResult();
+      empty.hidden = true;
+      const text = message.value;
+      if (!text.trim()) {
+        message.setAttribute("aria-invalid", "true");
+        showNotice("Добавьте текст заявки, чтобы запустить разбор.");
+        message.focus();
+        return;
+      }
+
+      const submittedRevision = revision;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 5_000);
+      busy = true;
+      button.disabled = true;
+      buttonLabel.textContent = "Разбираем…";
+      panel.setAttribute("aria-busy", "true");
+      showNotice("Определяем тему и готовим черновик…");
+      try {
+        const reply = await fetch("/api/triage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+          signal: controller.signal,
+        });
+        const result = await reply.json();
+        // Editing the input makes any in-flight result obsolete.
+        if (revision !== submittedRevision) return;
+        if (reply.status === 400 && result.status === "invalid_input") {
+          message.setAttribute("aria-invalid", "true");
+          showNotice("Добавьте непустой текст заявки и повторите разбор.");
+        } else if (
+          reply.ok && result.status === "ready" &&
+          Object.hasOwn(topicLabels, result.topic) &&
+          typeof result.draft === "string" && result.draft.trim()
+        ) {
+          clearResult();
+          topic.textContent = topicLabels[result.topic];
+          draft.textContent = result.draft;
+          answer.hidden = false;
+        } else if (reply.ok && result.status === "manual_review") {
+          showNotice("Не удалось подготовить черновик. Разберите заявку и составьте ответ вручную.");
+        } else {
+          throw new Error("Unexpected server response");
+        }
+      } catch {
+        if (revision === submittedRevision) {
+          showNotice("Не удалось связаться с сервером. Повторите разбор или составьте ответ вручную.");
+        }
+      } finally {
+        clearTimeout(timer);
+        busy = false;
+        button.disabled = false;
+        buttonLabel.textContent = "Разобрать заявку";
+        panel.setAttribute("aria-busy", "false");
+      }
     });
   </script>
 </body>
